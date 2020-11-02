@@ -1,0 +1,22 @@
+.quasar
+.DS_Store
+.thumbs.db
+node_modules
+src-cordova/node_modules
+/dist
+npm-debug.log*
+package-lock.json
+src-cordova/package-lock.json
+src-cordova/platforms/*
+
+# Editor directories and files
+.idea/
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.iml
+*.pyc
+*.log*
+*.tar.gz
