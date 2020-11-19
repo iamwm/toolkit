@@ -1,6 +1,4 @@
 # Created by wangmeng at 2020/11/2
-from fastapi import FastAPI
+from toolkit.api.api_server import create_app
 
-app = FastAPI()
-
-
+app = create_app()

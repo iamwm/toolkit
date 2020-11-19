@@ -2,33 +2,37 @@
 from fabric import Result, Connection
 
 from toolkit.models.base_host import BaseHost
-from toolkit.models.bastion import Bastion
 
 
 class Host(BaseHost):
-    bastion_name: str = None
-    bastion: Bastion = None
+    bastion: BaseHost = None
 
-    def get_bastion(self) -> Bastion:
+    async def get_bastion(self) -> BaseHost:
         if self.bastion_name is None:
             return None
         else:
-            pass
+            target_bastion_info = await self.operator.get_target_bastion_info(self.bastion_name)
+            return Host(**target_bastion_info)
 
-    def get_connection(self) -> Connection:
+    def to_dict(self):
+        return self.dict(exclude={'connection', 'operator', 'bastion'})
+
+    async def get_connection(self) -> Connection:
         # if bastion is None, connect directly else creat connection through bastion
-        if self.get_bastion() is not None:
+        self.bastion = await self.get_bastion()
+        if self.bastion is not None:
+            gateway_connection = await self.bastion.get_connection()
             _connection = Connection(self.address, user=self.username, port=self.port,
                                      connect_kwargs={'password': self.password},
-                                     gateway=self.get_bastion().get_connection())
+                                     gateway=gateway_connection)
         else:
             _connection = Connection(self.address, user=self.username, port=self.port,
                                      connect_kwargs={'password': self.password})
         return _connection
 
-    def run(self, command: str, *args, **kwargs) -> Result:
+    async def run(self, command: str, *args, **kwargs) -> Result:
         if self.connection is None:
-            self.connection = self.get_connection()
+            self.connection = await self.get_connection()
         with self.connection as conn:
             command_result = conn.run(command, **kwargs)
         return command_result
@@ -51,9 +55,17 @@ if __name__ == '__main__':
         "group": "Test"
     }
 
-    bastion = Bastion(**bastion_info)
+    bastion = Host(**bastion_info)
     host = Host(**host_info)
     host.bastion = bastion
 
-    hostname = host.run("hostname")
-    print(hostname)
+    import asyncio
+
+
+    async def execute_command():
+        hostname = await host.run("hostname")
+        print(hostname)
+
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(execute_command())
