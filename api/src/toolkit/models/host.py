@@ -12,7 +12,7 @@ class Host(BaseHost):
             return None
         else:
             target_bastion_info = await self.operator.get_target_bastion_info(self.bastion_name)
-            return Host(**target_bastion_info)
+            return Host(**target_bastion_info, operator=self.operator)
 
     def to_dict(self):
         return self.dict(exclude={'connection', 'operator', 'bastion'})
@@ -30,42 +30,10 @@ class Host(BaseHost):
                                      connect_kwargs={'password': self.password})
         return _connection
 
-    async def run(self, command: str, *args, **kwargs) -> Result:
+    async def run(self, commands: list, *args, **kwargs) -> Result:
         if self.connection is None:
             self.connection = await self.get_connection()
         with self.connection as conn:
-            command_result = conn.run(command, **kwargs)
+            for command in commands:
+                command_result = conn.run(command, **kwargs)
         return command_result
-
-
-if __name__ == '__main__':
-    host_info = {
-        "label": "realtech",
-        "address": "192.168.20.6",
-        "username": "realtech",
-        "password": "abc@123",
-        "group": "Test"
-    }
-
-    bastion_info = {
-        "label": "test_host",
-        "address": "192.168.20.144",
-        "username": "root",
-        "password": "123456",
-        "group": "Test"
-    }
-
-    bastion = Host(**bastion_info)
-    host = Host(**host_info)
-    host.bastion = bastion
-
-    import asyncio
-
-
-    async def execute_command():
-        hostname = await host.run("hostname")
-        print(hostname)
-
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(execute_command())
