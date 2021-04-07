@@ -15,5 +15,5 @@ deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ xenial-security multiverse
 EOF
 echo 'replace apt source list'
 apt-get update
-apt-get install gcc g++ cmake
+apt-get install -y gcc g++ cmake
 exit 0
