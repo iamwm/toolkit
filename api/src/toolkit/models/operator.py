@@ -9,18 +9,6 @@ class Operator(object):
     def __init__(self, host: str, port: int, ):
         self.client = AsyncIOMotorClient(host=host, port=port)
 
-    async def get_target_bastion_info(self, bastion_name: str):
-        raise NotImplementedError
-
-    async def get_host_info_by_filter(self, query_filter: dict) -> dict:
-        raise NotImplementedError
-
-    async def is_host_exists(self, label: str) -> bool:
-        raise NotImplementedError
-
-    async def insert_host_info(self, host_info: dict) -> bool:
-        raise NotImplementedError
-
 
 class HostOperator(Operator):
     database_name: str = "toolkit"
@@ -54,3 +42,13 @@ class HostOperator(Operator):
         query_filter = {'label': bastion_name}
         target_host = await self.collection.find_one(query_filter)
         return target_host
+
+
+class GroupOperator(Operator):
+    database_name: str = "toolkit"
+    collection_name: str = "groups"
+
+    def __init__(self, host: str, port: int):
+        super().__init__(host, port)
+        self.database = self.client[self.database_name]
+        self.collection = self.database[self.collection_name]

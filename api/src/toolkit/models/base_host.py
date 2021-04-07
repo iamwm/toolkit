@@ -2,7 +2,7 @@
 from fabric import Connection, Result
 from pydantic import BaseModel
 
-from toolkit.models.operator import Operator
+from toolkit.models.operator import HostOperator
 
 
 class BaseHost(BaseModel):
@@ -18,7 +18,7 @@ class BaseHost(BaseModel):
     group: str
     bastion_name: str = None
     connection: Connection = None
-    operator: Operator = None
+    operator: HostOperator = None
 
     def get_connection(self) -> Connection:
         raise NotImplementedError
