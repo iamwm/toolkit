@@ -1,4 +1,6 @@
 # Created by wangmeng at 2020/11/19
+from asyncio import get_event_loop
+
 from fabric import Result, Connection
 
 from toolkit.models.base_host import BaseHost
@@ -31,9 +33,10 @@ class Host(BaseHost):
         return _connection
 
     async def run(self, commands: list, *args, **kwargs) -> Result:
+        loop = get_event_loop()
         if self.connection is None:
             self.connection = await self.get_connection()
         with self.connection as conn:
             for command in commands:
-                command_result = conn.run(command, **kwargs)
+                command_result = await loop.run_in_executor(None, conn.run, *[command])
         return command_result

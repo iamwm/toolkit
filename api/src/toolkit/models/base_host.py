@@ -15,16 +15,19 @@ class BaseHost(BaseModel):
     port: int = 22
     username: str
     password: str
-    group: str
     bastion_name: str = None
     connection: Connection = None
     operator: HostOperator = None
 
-    def get_connection(self) -> Connection:
+    async def get_connection(self) -> Connection:
         raise NotImplementedError
 
-    def run(self, command: str, *args, **kwargs) -> Result:
+    async def run(self, command: list, *args, **kwargs) -> Result:
         raise NotImplementedError
 
     def to_dict(self):
         return self.dict(exclude={'connection', 'operator'})
+
+    @classmethod
+    def create_host(cls, **kwargs):
+        return cls(**kwargs)
