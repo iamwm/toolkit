@@ -1,5 +1,6 @@
 # Created by wangmeng at 2020/11/19
 from asyncio import get_event_loop
+from functools import partial
 
 from fabric import Result, Connection
 
@@ -21,15 +22,18 @@ class Host(BaseHost):
 
     async def get_connection(self) -> Connection:
         # if bastion is None, connect directly else creat connection through bastion
+        loop = get_event_loop()
         self.bastion = await self.get_bastion()
         if self.bastion is not None:
             gateway_connection = await self.bastion.get_connection()
-            _connection = Connection(self.address, user=self.username, port=self.port,
-                                     connect_kwargs={'password': self.password},
-                                     gateway=gateway_connection)
+            connection_partial = partial(Connection, self.address, user=self.username, port=self.port,
+                                         connect_kwargs={'password': self.password},
+                                         gateway=gateway_connection)
+
         else:
-            _connection = Connection(self.address, user=self.username, port=self.port,
-                                     connect_kwargs={'password': self.password})
+            connection_partial = partial(Connection, self.address, user=self.username, port=self.port,
+                                         connect_kwargs={'password': self.password})
+        _connection = await loop.run_in_executor(None, connection_partial, )
         return _connection
 
     async def run(self, commands: list, *args, **kwargs) -> Result:

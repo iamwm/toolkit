@@ -8,18 +8,32 @@ from toolkit.task.python import PythonInstallTask
 
 class TestPythonInstallTask(TestCase):
     def setUp(self) -> None:
-        host = Host.create_host(**{
-            'label': 'mongo1',
-            'group': 'mongo1',
-            'address': '192.168.20.128',
+        host1 = Host.create_host(**{
+            'label': 'mongo2',
+            'group': 'mongo2',
+            'address': '192.168.225.248',
             'username': 'root',
             'password': 'abc@123'
         })
-        self.host = host
-        self.task = PythonInstallTask(host_list=[self.host], scripts=["../services/scripts/python.sh"])
+        host2 = Host.create_host(**{
+            'label': 'mongo3',
+            'group': 'mongo3',
+            'address': '192.168.20.126',
+            'username': 'root',
+            'password': 'abc@123'
+        })
+        host3 = Host.create_host(**{
+            'label': 'mongo4',
+            'group': 'mongo4',
+            'address': '192.168.20.123',
+            'username': 'root',
+            'password': 'abc@123'
+        })
+        self.task = PythonInstallTask(host_list=[host1], scripts=["../services/scripts/python.sh"])
 
     def tearDown(self) -> None:
-        pass
+        loop = get_event_loop()
+        loop.close()
 
     def test_task_init(self):
         loop = get_event_loop()

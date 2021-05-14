@@ -19,7 +19,8 @@ class TestAptSourceListUpdateTask(TestCase):
         self.task = AptSourceListUpdateTask(host_list=[self.host], scripts=["../services/scripts/apt_source_update.sh"])
 
     def tearDown(self) -> None:
-        pass
+        loop = get_event_loop()
+        loop.close()
 
     def test_task_init(self):
         loop = get_event_loop()

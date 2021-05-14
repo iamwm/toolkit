@@ -23,10 +23,13 @@ pip install virtualenv           #安装依赖包
 
 # pip config
 mkdir ~/.pip
-touch ~/.pip/pip.conf
-echo '[global]' >>~/.pip/pip.conf
-echo 'index-url = https://pypi.tuna.tsinghua.edu.cn/simple' >>~/.pip/pip.conf
-
+if [ $? -eq 0 ]; then
+  touch ~/.pip/pip.conf
+  echo '[global]' >~/.pip/pip.conf
+  echo 'index-url = https://pypi.tuna.tsinghua.edu.cn/simple' >>~/.pip/pip.conf
+else
+  echo 'pip config already exists'
+fi
 #
 echo 'python env is ok'
 exit 0
