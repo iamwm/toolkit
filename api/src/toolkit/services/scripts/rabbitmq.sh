@@ -1,15 +1,26 @@
 #!/bin/bash
 # 安装erlang
 apt-get install -y erlang
-
+apt-get install apt-transport-https
 # 设置hostname为rabbitmq
 echo 'rabbitmq' >/etc/hostname
 
 # 安装rabbitmq
 wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
 dpkg -i erlang-solutions_1.0_all.deb
-wget -O - "https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc" | apt-key add -
-echo "deb https://dl.bintray.com/rabbitmq/debian bionic main" | tee /etc/apt/sources.list.d/bintray.rabbitmq.list
+
+curl -1sLf 'https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey' | sudo apt-key add -
+tee /etc/apt/sources.list.d/rabbitmq.list <<EOF
+## Provides modern Erlang/OTP releases
+##
+deb http://ppa.launchpad.net/rabbitmq/rabbitmq-erlang/ubuntu xenial main
+deb-src http://ppa.launchpad.net/rabbitmq/rabbitmq-erlang/ubuntu xenial main
+
+## Provides RabbitMQ
+##
+deb https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu/ xenial main
+deb-src https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu/ xenial main
+EOF
 apt-get update
 apt-get install -y rabbitmq-server
 
